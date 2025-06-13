@@ -18,13 +18,19 @@ export class RAGService {
       
       // Get memory details from database
       const memoryIds = matches.map(match => match.id);
-      const memories: Memory[] = await prisma.memory.findMany({
+      const rawMemories = await prisma.memory.findMany({
         where: {
           id: { in: memoryIds },
           userId,
         },
         orderBy: { createdAt: 'desc' },
       });
+
+      const memories: Memory[] = rawMemories.map(memory => ({
+        ...memory,
+        title: memory.title ?? undefined, // Convert null to undefined for title
+        embeddingId: memory.embeddingId ?? undefined, // Convert null to undefined for embeddingId
+      }));
       
       // Create context from relevant memories
       const context = memories.map(memory => 
