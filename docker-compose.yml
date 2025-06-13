@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: memory_db
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    build: .
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgresql://username:password@postgres:5432/memory_db
+      JWT_SECRET: your-super-secret-jwt-key
+      MISTRAL_API_KEY: your-mistral-api-key
+      PINECONE_API_KEY: your-pinecone-api-key
+      PINECONE_INDEX_NAME: memory-index
+      FRONTEND_URL: http://localhost:3000
+
+volumes:
+  postgres_data:
